@@ -15,8 +15,8 @@ Each of these parts has it's own CRC
 | Packet header | Description |
 |---|---|
 |0x69|Packet start|
-|0x02|Target address (maybe the physical RS485 address, haven't tested yet)|
-|0x01|Sender address (maybe the physical RS485 address, haven't tested yet)|
+|0x02|Target address *(maybe the physical RS485 address, haven't tested yet)*|
+|0x01|Sender address *(maybe the physical RS485 address, haven't tested yet)*|
 |0x84|UNKNOWN|
 |0x00|UNKNOWN|
 |0x00|UNKNOWN|
