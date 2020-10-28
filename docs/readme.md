@@ -33,7 +33,7 @@ Each part has it's own CRC
 |0x32| For function ID 40 and 50 this is the number of MEMORY REGISTERS (Bytes) requested|
 |0x64| For function ID 40 and 50 this is the starting byte (in this example we are requesting 50(0x32) memory registers MEMORY REGISTER, staring from 100(0x64)|
 |0x00| |
-|0xbdb2| CRC16|
+|0xbdb2| CRC-16/XMODEM [Online CRC Calculator](https://crccalc.com/?crc=02%2000%2001%2000%2040%2080%2000%2032%2064%2000&method=crc16&datatype=hex&outtype=hex) |
 
 You can find more in the attached .ods file
 
