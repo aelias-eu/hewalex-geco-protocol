@@ -15,17 +15,17 @@ Each part has it's own CRC
 | Packet header | Description |
 |---|---|
 |0x69|Packet start|
-|0x02|Sender address (maybe the physical RS485 address, haven't tested yet)|
-|0x01|Target address (maybe the physical RS485 address, haven't tested yet)|
+|0x02|Target address (maybe the physical RS485 address, haven't tested yet)|
+|0x01|Sender address (maybe the physical RS485 address, haven't tested yet)|
 |0x84|UNKNOWN|
 |0x00|UNKNOWN|
 |0x00|UNKNOWN|
 |0x0c|Payload size|
 |0xf6|Header CRC ( CRC-8/DVB-S2 ) ( https://crccalc.com/?crc=69 02 01 84 00 00 0c&method=crc8&datatype=hex&outtype=hex)
 |*Payload*||
-|0x02| Sender address|
+|0x02| Target address|
 |0x00||
-|0x01| Target address|
+|0x01| Sender address|
 |0x00| |
 |0x40| Probably function ID - looks like the answer has the same number but with the 5th bit set to "1" (request: 40, answer 50; request 60, answer 70) |
 |0x80| |
