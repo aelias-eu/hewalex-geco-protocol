@@ -8,6 +8,8 @@ You have to edit settings directly in the script.
 Requests are hardcoded (asuming the controller's physical and also logical address is 2) so if you need to change them, you have to recalculate the CRC. 
 I take it as working PoC. Currently I'm running it in cron from my armbian-based device and processing actual temperatures via MQTT to homeassistant.
 
+![mqtt](docs/mqtt.png)
+
 It is possible to send configuration data to the controller, but I don't have the communication device for Ekontrol connection - this would require some sniffing on such installation. 
 
 If you look at the demo of [Ekontrol](https://ekontrol.pl/en/33570/scheme/) by Hewalex , you can see pretty much what can be done with this system. They dont' seem to have any public API for the Ekontrol interface, so there is that...
