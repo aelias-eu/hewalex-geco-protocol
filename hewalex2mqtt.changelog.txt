@@ -1,0 +1,45 @@
+hewalex2mqtt.py
+===============
+
+
+20201028
+--------
++ Repairs & Corrections:
+  * Identified & repaired mistake in previous version - switched From/To in message processing
+  * Processing most registers as 16bit registers with support for negative numbers 
++ New register meaning identified
+  Decoded data:
+  * Temperatures T1, T2, T3, T4 [°C]
+  * Actual solar power gain [W]
+  * Actual fluid flow [l/min]
+  * Collector pump ON/OFF status
+  * Total energy yield [kWh]
+  Identified Configuration data ( mostly in docs/hewalex_protocol_analysis.ods ), not yet pushed to MQTT :
+  * Selected schema [1 = English; 2=Deutsch; ... 9=Slovak]
+  * Controller settings – Display – Standby [min]
+  * Controller settings – Display – Brightness
+  * Controller settings – Sound settings – Alarm Sound [0/1]
+  * Controller settings – Sound settings – Key sound [0/1]
+  * Language
+  * Fluid freeze Temperature [°C]
+  * Control parameters – Solar collector type [0=Flat; 1=Tube]
+  * Control parameters - Temp T1&T2 difference pump on [°C]
+  * Control parameters - Max Temp T2 OFF collector’s pump [°C]
+  * Control parameters – Regulation of collector’s pump [0/1]
+  * Control parameters – Overheat protection of collectors ON [0/1]
+  * Control parameters – MaxTemp T2 Overheat protection OFF [°C]
+  * Control parameters – Freezing protection of collectors ON [0/1]
+  * Parameters settings – Time program C Mo-Fr 00-01 thru 15-16
+
+
+20201027
+--------
+* First version 
++ Sending predefined requests for registers 100-250
++ Publishing Raw data to MQTT
++ Publishing decoded data to MQTT
+  Decoded data:
+  * Temperatures T1, T2, T3, T4
+  * Actual solar power gain
+ 
+
