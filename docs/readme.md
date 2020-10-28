@@ -10,7 +10,7 @@ This is a sample packet requesting data from controller:
 We can divide the packet into two parts:
 - Packet header
 - Payload
-Each part has it's own CRC
+Each of these parts has it's own CRC
 
 | Packet header | Description |
 |---|---|
@@ -35,6 +35,14 @@ Each part has it's own CRC
 |0x00| |
 |0xbdb2| CRC-16/XMODEM [Online CRC Calculator](https://crccalc.com/?crc=02%2000%2001%2000%2040%2080%2000%2032%2064%2000&method=crc16&datatype=hex&outtype=hex) |
 
-You can find more in the attached .ods file
+You can find more in the attached **hewalex_protocol_analysis.ods** file
 
-Maybe it would be better to look at the payload as if all data were interpreted as 16bit registers and negative numbers are represented by the 2’s Complement Method [https://www.tutorialspoint.com/negative-binary-numbers]. It looks like this approach would work for almost all data - except the date and time. 
+It looks like the payload data is represented by 16bit registers and negative numbers are represented by the 2’s Complement Method [https://www.tutorialspoint.com/negative-binary-numbers]. 
+
+This approach works for almost all data - except for:
+ - Date
+ - Time
+ - Solar power
+ - Total Energy
+ - Scheduling settings for circulation- they are in binary form
+For now it's implemented this way in the python script.
