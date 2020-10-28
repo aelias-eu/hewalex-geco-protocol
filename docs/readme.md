@@ -21,7 +21,7 @@ Each part has it's own CRC
 |0x00|UNKNOWN|
 |0x00|UNKNOWN|
 |0x0c|Payload size|
-|0xf6|Header CRC ( CRC-8/DVB-S2 ) ( https://crccalc.com/?crc=69 02 01 84 00 00 0c&method=crc8&datatype=hex&outtype=hex)
+|0xf6|Header CRC ( CRC-8/DVB-S2 ) [Online CRC Calculator]("https://crccalc.com/?crc=69%2002%2001%2084%2000%2000%200c&method=crc8&datatype=hex&outtype=hex")
 |*Payload*||
 |0x02| Target address|
 |0x00||
