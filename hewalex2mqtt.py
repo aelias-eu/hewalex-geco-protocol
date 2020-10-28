@@ -6,7 +6,13 @@ ser = serial.Serial('/dev/ttyUSB0', 38400)
 mqttBroker ="127.0.0.1" 				# IP addres or DNS name of your MQTT broker
 mqttPrefix="hewalex/"					# MQTT Topic prefix 
 
-
+def twos_complement(hexstr,bits):
+  # Source: https://stackoverflow.com/questions/6727875/hex-string-to-signed-int-in-python-3-2 
+  # Author: Mark Tolonen ( https://stackoverflow.com/users/235698/mark-tolonen )
+  value = int(hexstr,16)
+  if value & (1 << (bits-1)):
+   value -= 1 << bits
+  return value
 
 ser.flushInput()
 import paho.mqtt.client as mqtt 
@@ -14,7 +20,7 @@ client = mqtt.Client("HEWALEX")
 client.connect(mqttBroker) 
 
 from binascii import unhexlify
-import binascii
+from binascii import hexlify
 
 def HewalexRequest(requestID):
   if requestID == 1:
@@ -34,13 +40,13 @@ def HewalexWaitForResponse(timeout):
   print("Response:")
   respSize = len(response)
   print(respSize)
-  print(binascii.hexlify(bytearray(response)))
+  print(hexlify(bytearray(response)))
   print(response[0])
   if respSize == 70 and response[0]==0x69:
     print("Packet Header")
     print("-From:    ",response[1])
     print("-To:      ",response[2])
-    print("-[3,4,5]: ",binascii.hexlify(response[3:6]))		 # ToDo: verify - response[3] always 0x84
+    print("-[3,4,5]: ",hexlify(response[3:6]))		 # ToDo: verify - response[3] always 0x84
     print("-Payload: ",response[6]," Bytes")
     print("-CRC:     ",response[7]," CRC-8/DVB-S2 ")		 # ToDo: check CRC validity
     ## verify packet size based on packet length && payload length from header
@@ -55,16 +61,41 @@ def HewalexWaitForResponse(timeout):
     if fncID == 0x50:
       startReg = int(response[16])
       for iPacketPos in range(0,int(response[15])):
+       if (iPacketPos % 2 == 0):
         iReg = iPacketPos+startReg
-        client.publish(mqttPrefix+"/raw/"+str(iReg),response[18+iPacketPos])
-        if iReg == 120:
-          client.publish(mqttPrefix+"/decoded/"+"controllerDate", "20"+str(response[18+iPacketPos])+"-"+str(response[18+iPacketPos+1])+"-"+str(response[18+iPacketPos+2]))
-          client.publish(mqttPrefix+"/decoded/"+"controllerTime", str(response[18+iPacketPos+4])+":"+str(response[18+iPacketPos+5])+":"+str(response[18+iPacketPos+6]))
-          client.publish(mqttPrefix+"/decoded/"+"T1", int(response[18+iPacketPos+9])*256+int(response[18+iPacketPos+8]))
-          client.publish(mqttPrefix+"/decoded/"+"T2", int(response[18+iPacketPos+11])*256+int(response[18+iPacketPos+10]))
-          client.publish(mqttPrefix+"/decoded/"+"T3", int(response[18+iPacketPos+13])*256+int(response[18+iPacketPos+12]))
-          client.publish(mqttPrefix+"/decoded/"+"T4", int(response[18+iPacketPos+15])*256+int(response[18+iPacketPos+14]))
-          client.publish(mqttPrefix+"/decoded/"+"SolarPower", int(response[18+iPacketPos+25])*256+int(response[18+iPacketPos+24]))
+        hexstr=hexlify(bytearray([response[19+iPacketPos],response[18+iPacketPos]]))
+        client.publish(mqttPrefix+"raw/"+str(iReg)+'/hex',hexstr)
+        client.publish(mqttPrefix+"raw/"+str(iReg)+'/val',twos_complement(hexstr,16))
+        if iReg==120:						#date
+          client.publish(mqttPrefix+"decoded/"+"controllerDate", "20"+str(response[18+iPacketPos])+"-"+str(response[18+iPacketPos+1])+"-"+str(response[18+iPacketPos+2]))
+        if iReg==124:						#time
+          client.publish(mqttPrefix+"decoded/"+"controllerTime", str(response[18+iPacketPos]).zfill(2)+":"+str(response[18+iPacketPos+1]).zfill(2)+":"+str(response[18+iPacketPos+2]).zfill(2))
+        if iReg==128:						#T1
+          client.publish(mqttPrefix+"decoded/T1",twos_complement(hexstr,16))
+        if iReg==130:						#T2
+          client.publish(mqttPrefix+"decoded/T2",twos_complement(hexstr,16))
+        if iReg==132:						#T3
+          client.publish(mqttPrefix+"decoded/T3",twos_complement(hexstr,16))
+        if iReg==134:						#T4
+          client.publish(mqttPrefix+"decoded/T4",twos_complement(hexstr,16))
+        if iReg==136:						#T5
+          client.publish(mqttPrefix+"decoded/T5",twos_complement(hexstr,16))
+        if iReg==138:						#T6
+          client.publish(mqttPrefix+"decoded/T6",twos_complement(hexstr,16))
+        if iReg==144:
+          client.publish(mqttPrefix+"decoded/SolarPower",twos_complement(hexstr,16))
+        if iReg==148:
+          client.publish(mqttPrefix+"decoded/Reg148",twos_complement(hexstr,16))
+        if iReg==150:
+          client.publish(mqttPrefix+"decoded/CollectorPumpON",twos_complement(hexstr,16))
+        if iReg==152:
+          client.publish(mqttPrefix+"decoded/Flow",twos_complement(hexstr,16)/10)
+        if iReg==154:
+          client.publish(mqttPrefix+"decoded/Reg154",twos_complement(hexstr,16))
+        if iReg==156:
+          client.publish(mqttPrefix+"decoded/Reg156",twos_complement(hexstr,16))
+        if iReg==166:
+          client.publish(mqttPrefix+"decoded/TotalEnergy",twos_complement(hexstr,16)/10)
 
 HewalexRequest(1)
 HewalexWaitForResponse(1)
