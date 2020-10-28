@@ -63,39 +63,57 @@ def HewalexWaitForResponse(timeout):
       for iPacketPos in range(0,int(response[15])):
        if (iPacketPos % 2 == 0):
         iReg = iPacketPos+startReg
+        processed = 0
         hexstr=hexlify(bytearray([response[19+iPacketPos],response[18+iPacketPos]]))
-        client.publish(mqttPrefix+"raw/"+str(iReg)+'/hex',hexstr)
-        client.publish(mqttPrefix+"raw/"+str(iReg)+'/val',twos_complement(hexstr,16))
         if iReg==120:						#date
           client.publish(mqttPrefix+"decoded/"+"controllerDate", "20"+str(response[18+iPacketPos])+"-"+str(response[18+iPacketPos+1])+"-"+str(response[18+iPacketPos+2]))
+          processed = 1
         if iReg==124:						#time
           client.publish(mqttPrefix+"decoded/"+"controllerTime", str(response[18+iPacketPos]).zfill(2)+":"+str(response[18+iPacketPos+1]).zfill(2)+":"+str(response[18+iPacketPos+2]).zfill(2))
+          processed = 1
         if iReg==128:						#T1
           client.publish(mqttPrefix+"decoded/T1",twos_complement(hexstr,16))
+          processed = 1
         if iReg==130:						#T2
           client.publish(mqttPrefix+"decoded/T2",twos_complement(hexstr,16))
+          processed = 1
         if iReg==132:						#T3
           client.publish(mqttPrefix+"decoded/T3",twos_complement(hexstr,16))
+          processed = 1
         if iReg==134:						#T4
           client.publish(mqttPrefix+"decoded/T4",twos_complement(hexstr,16))
+          processed = 1
         if iReg==136:						#T5
           client.publish(mqttPrefix+"decoded/T5",twos_complement(hexstr,16))
+          processed = 1
         if iReg==138:						#T6
           client.publish(mqttPrefix+"decoded/T6",twos_complement(hexstr,16))
+          processed = 1
         if iReg==144:
-          client.publish(mqttPrefix+"decoded/SolarPower",twos_complement(hexstr,16))
+          client.publish(mqttPrefix+"decoded/SolarPower",int(hexstr,16))
+          processed = 1
         if iReg==148:
           client.publish(mqttPrefix+"decoded/Reg148",twos_complement(hexstr,16))
+          processed = 1
         if iReg==150:
-          client.publish(mqttPrefix+"decoded/CollectorPumpON",twos_complement(hexstr,16))
+          client.publish(mqttPrefix+"decoded/CollectorPumpON",int(hexstr,16))
+          processed = 1
         if iReg==152:
           client.publish(mqttPrefix+"decoded/Flow",twos_complement(hexstr,16)/10)
+          processed = 1
         if iReg==154:
           client.publish(mqttPrefix+"decoded/Reg154",twos_complement(hexstr,16))
+          processed = 1
         if iReg==156:
           client.publish(mqttPrefix+"decoded/Reg156",twos_complement(hexstr,16))
+          processed = 1
         if iReg==166:
-          client.publish(mqttPrefix+"decoded/TotalEnergy",twos_complement(hexstr,16)/10)
+          client.publish(mqttPrefix+"decoded/TotalEnergy",int(hexstr,16)/10)
+        # only unprocessed data goes to /raw topic
+        if processed == 0:
+          client.publish(mqttPrefix+"raw/"+str(iReg),hexstr)
+          #client.publish(mqttPrefix+"raw/"+str(iReg)+'/val',twos_complement(hexstr,16))
+         
 
 HewalexRequest(1)
 HewalexWaitForResponse(1)
