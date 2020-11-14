@@ -31,7 +31,7 @@ I take it as working PoC. Currently I'm running it in cron from my armbian-based
 
 It is possible to send configuration data to the controller, but I don't have the communication device for Ekontrol connection - this would require some sniffing on such installation. 
 
-If you look at the demo of [Ekontrol](https://ekontrol.pl/en/33570/scheme/) by Hewalex , you can see pretty much what can be done with this system. They dont' seem to have any public API for the Ekontrol interface, so there is that...
+If you look at the demo of [Ekontrol](https://ekontrol.pl/en/33570/scheme/) by Hewalex , you can see pretty much what can be done with this system. They don't seem to have any public API for the Ekontrol interface, so there is that...
 
 This work is inspired & based on informations provided on the elektroda.pl forum 
 - https://www.elektroda.pl/rtvforum/topic3499254.html
