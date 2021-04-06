@@ -1,5 +1,5 @@
 # Communication
-Communication with the controller unit is performed via RS485 line. Default communication parameters are 38400 8N1. The connector is on the back of the controller.
+Communication with the G-422 controller unit is performed via RS485 line. Default communication parameters are 38400 8N1. The connector is on the back of the controller.
 I have tested this via USB/R485 converter and now I'm using a Moxa RS485/LAN serial server to connect to the controller via LAN. You should be fine with any RS485 connection method.
 
 # Packets
@@ -10,6 +10,7 @@ This is a sample packet requesting data from controller:
 We can divide the packet into two parts:
 - Packet header
 - Payload
+
 Each of these parts has it's own CRC
 
 | Packet header | Description |
