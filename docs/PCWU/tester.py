@@ -6,21 +6,19 @@ import serial
 from datetime import datetime
 import time
 
+# Controller (Master)
 MasterHardId = 1
 MasterSoftId = 1
 
-#SlaveHardId = 5
-#SlaveSoftId = 6
+# PCWU (Slave)
 SlaveHardId = 2
 SlaveSoftId = 2
 
-#IsSendMode = True
+# Should be set to True when sending messages
 IsSendMode = False
 
-#StandardMessagesTruncation = True
+# Can be tweaked for different levels of verbosity
 StandardMessagesTruncation = False
-#ShowMessageBytes = False
-#OnlyNotificationAndError = True
 ShowMessageBytes = True
 OnlyNotificationAndError = False
 
@@ -457,24 +455,32 @@ def createWriteMessageTime():
   header.append(calcCrc8)
   return bytearray(header + payload)
 
-#m = unhexlify('6902018400000cf602000100408000326400bdb2')
-ser = serial.Serial('/dev/ttySC1', 38400, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE, timeout=1)
-#timingTest(ser)
-ser.flushInput()
-m = ser.read(500)
-m = ser.read(500)
-r = processAllMessages(m)
 
-ser.close()
+## Define your serial connection here
 
-exit(0)
+#ser = serial.Serial('/dev/ttySC1', 38400, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE)
+ser = serial.serial_for_url('socket://192.168.178.61:8899')
 
-#loop
 
-StandardMessagesTruncation = True
+## Eavesdropping - Read two cycles but only parse the second one to avoid trying to parse partial frames
+
+# #m = unhexlify('6902018400000cf602000100408000326400bdb2')
+# ser.timeout = 1
+# #timingTest(ser)
+# ser.flushInput()
+# m = ser.read(500)
+# m = ser.read(500)
+# r = processAllMessages(m)
+# ser.close()
+# exit(0)
+
+
+## Eavesdropping - Loop
+
+#StandardMessagesTruncation = True
 ShowMessageBytes = False
-OnlyNotificationAndError = True
-ser = serial.Serial('/dev/ttySC1', 38400, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE, timeout=0.1)
+#OnlyNotificationAndError = True
+ser.timeout = 0.1
 ser.flushInput()
 m = ser.read(500)
 prevM = b''
@@ -483,50 +489,42 @@ while True:
   if len(readed) == 0:
     readed = ser.read(500)
   if len(readed) == 0:
-    readed = ser.read(500) #try 3 times, interval is 350ms, timeout is 100ms, so should be enought
+    readed = ser.read(500) #try 3 times, interval is 350ms, timeout is 100ms, so should be enough
   m = prevM + readed
   prevM = processAllMessages(m, returnRemainingBytes=True)
-
 ser.close()
-
 exit(0)
 
-#send
+
+## Direct communication - Sending messages
 
 IsSendMode = True
-ser = serial.Serial('/dev/ttySC1', 38400, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE, timeout=0.5)
-ser.flushInput()
+SlaveHardId = 5
+SlaveSoftId = 6
+ser.timeout = 0.5
 
+ser.flushInput()
 ser.write(createReadMessage3())
 m = ser.read(500)
 r = processAllMessages(m)
-
-
 exit(0)
 
 ser.flushInput()
-
 ser.write(createReadMessageReg32(432))
 m = ser.read(500)
 getSchedule(getReadMessageBytes(m))
-
 ser.write(createWriteMessageArray(440, convertoToScheduleProtoData({0: 1, 1: 1, 2: 1, 3: 1, 4: 1, 5: 1, 6: 1, 7: 1, 8: 1, 9: 1, 10: 1, 11: 1, 12: 1, 13: 1, 14: 1, 15: 0, 16: 1, 17: 1, 18: 1, 19: 1, 20: 0, 21: 1, 22: 1, 23: 1})))
 m = ser.read(500)
 r = processAllMessages(m)
-
 exit(0)
 
-
 ser.flushInput()
-
 ser.write(createReadMessageReg(430))
 m = ser.read(500)
 r = processAllMessages(m)
-
 ser.write(createWriteMessage16(430, 1))
 m = ser.read(500)
 r = processAllMessages(m)
-
 exit(0)
 
 ser.flushInput()
@@ -536,3 +534,4 @@ r = processAllMessages(m)
 ser.write(createWriteMessageTime())
 m = ser.read(500)
 r = processAllMessages(m)
+exit(0)
