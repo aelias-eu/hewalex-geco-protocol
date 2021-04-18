@@ -16,3 +16,6 @@ This mode of communication is best suited to inspect and document the protocol s
 The mainboard of the PCWU has two RS485 connectors. By default the G-426 controller is connected to the 2nd port while the 1st port is free. In my case Hewalex even provided an empty screwable connector in that spot and I could just unplug the connector from the mainboard and use a small part of wire from the G-426 connection cable. Just make sure to follow the colorcoding as seen on the 2nd RS485 port. Then connect your RS485 to Wi-Fi device to the other end of the piece of wire making sure that the A, B and 12V lines are connected in the right order.
 
 The big difference is that this way of connecting allows the PCWU to communicate with the G-426 controller in its usual fashion while at the same time it is possible to read and write to the PCWU using the RS485 to Wi-Fi device. The G-426 controller settings menu allows to set the baud rate, physical address and logical address for the dedicated RS485 port. Recommended values are 38400, 2 and 2. The protocol is the same as [describe above](Geco%20Proto.docx).
+
+# Registers
+See https://github.com/mvdklip/Domoticz-Hewalex/blob/master/hewalex_geco/devices/pcwu.py for an overview of status and config registers.
