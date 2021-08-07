@@ -33,6 +33,26 @@ def HewalexRequest(requestID):
     print("Requesting bytes 200-249")
     ser.write(unhexlify('6902018400000cf60200010040800032c800e5a1'))		# request 0x32 (50) registers from 0xc8 (200)
 
+def crc8_dvb_s2(crc, data):
+  for x in data:
+    crc ^= x
+    for _ in range(8):
+      if crc & 0x80:
+        crc = ((crc << 1) ^ 0xD5) % 256
+      else:
+        crc = (crc << 1) % 256
+  return crc
+
+def crc16_ccitt(crc, data):
+  msb = crc >> 8
+  lsb = crc & 255
+  for x in data:
+    x = x ^ msb
+    x ^= (x >> 4)
+    msb = (lsb ^ (x >> 3) ^ (x << 4)) & 255
+    lsb = (x ^ (x << 5)) & 255
+  return (msb << 8) + lsb
+
 def HewalexWaitForResponse(timeout):
   print("Waiting for response.")
   ser.timeout=int(timeout)
@@ -40,6 +60,10 @@ def HewalexWaitForResponse(timeout):
   print("Response:")
   respSize = len(response)
   print(respSize)
+  ## validate response length
+  if respSize == 0:
+    print("ERROR: No response received")
+    return
   print(hexlify(bytearray(response)))
   print(response[0])
   if respSize == 70 and response[0]==0x69:
@@ -48,8 +72,23 @@ def HewalexWaitForResponse(timeout):
     print("-To:      ",response[2])
     print("-[3,4,5]: ",hexlify(response[3:6]))		 # ToDo: verify - response[3] always 0x84
     print("-Payload: ",response[6]," Bytes")
-    print("-CRC:     ",response[7]," CRC-8/DVB-S2 ")		 # ToDo: check CRC validity
+    print("-CRC:     ",response[7]," CRC-8/DVB-S2 ")
+    ## verify Packet Header CRC
+    if response[7] != crc8_dvb_s2(0, response[0:7]):
+      print("ERROR: Incorrect Header checksum")
+      return
+
     ## verify packet size based on packet length && payload length from header
+    if respSize != 8 + response[6]:
+      print("ERROR: Reported packet size does not match response length")
+      return
+
+    ## verify payload data CRC
+    CRC = (response[-2] << 8) + response[-1]
+    if CRC != crc16_ccitt(0, response[8:8+response[6]-2]):
+      print("ERROR: Incorrect payload checksum")
+      return
+
     print("Data header")
     print("-From:    ",response[8])				 # Logical address? 
     print("-To:      ",response[10])				 # Logical address?
@@ -109,6 +148,7 @@ def HewalexWaitForResponse(timeout):
           processed = 1
         if iReg==166:
           client.publish(mqttPrefix+"decoded/TotalEnergy",int(hexstr,16)/10)
+          processed = 1
         # only unprocessed data goes to /raw topic
         if processed == 0:
           client.publish(mqttPrefix+"raw/"+str(iReg),hexstr)
